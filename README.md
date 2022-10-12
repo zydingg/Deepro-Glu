@@ -14,7 +14,7 @@ Lysine glutarylation (Kglu) is a newly discovered post-translational modificatio
 
 ### Guiding principles:
 * The data contains training dataset and testing dataset.
-* File 
+* File 'code' contains scripts for training the model and loading data.
 
 
 
