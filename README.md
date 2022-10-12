@@ -14,7 +14,7 @@ Lysine glutarylation (Kglu) is a newly discovered post-translational modificatio
 
 ### Guiding principles:
 * File 'data' contains training and testing data used in this study.
-* File 'code' contains scripts for training the model and loading data. Load_data.py is the implementation of load raw protein sequence.Deepro_Glu.py was used to training the proposed model.utils.py is the implementation of 
+* File 'code' contains scripts for training the model and loading data. Load_data.py is the implementation of load raw protein sequence.Deepro_Glu.py was used to training the proposed model.utils.py is the implementation of calculate model score.
 
 
 
