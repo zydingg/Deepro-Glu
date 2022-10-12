@@ -23,4 +23,4 @@ Lysine glutarylation (Kglu) is a newly discovered post-translational modificatio
 
 
 #### Note:
-This code is for the article 'Deepro-Glu Combination of Convolutional Neural Network and Bi-LSTM Models Using ProtBert and Biological Features to Identify Lysine Glutarylation Sites' Please feel free to contact me if you need any further information and help, email : dingzhaoyuan@zzuli.edu.cn
+This code is for the article 'Deepro-Glu Combination of Convolutional Neural Network and Bi-LSTM Models Using ProtBert and Biological Features to Identify Lysine Glutarylation Sites' Please feel free to contact me if you need any further information and help, email : wangxiao@zzuli.edu.cn
