@@ -166,8 +166,6 @@ def validate(model, val_loader, device):
     
     return score
 
-  
-#网络模型
 
 tokenizer = BertTokenizer.from_pretrained('Rostlab/prot_bert')
  
