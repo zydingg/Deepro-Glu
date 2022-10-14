@@ -167,171 +167,43 @@ def validate(model, val_loader, device):
     return score
 
   
+#网络模型
 
 tokenizer = BertTokenizer.from_pretrained('Rostlab/prot_bert')
  
-
-# class BiLSTM_Attention(nn.Module):
-
-#     def __init__(self,  embedding_dim=83,hidden_dim=32,  n_layers=1): 
-
-#         super(BiLSTM_Attention, self).__init__()
-
-#         ###proBert预训练模型
-#         self.bert = BertModel.from_pretrained("Rostlab/prot_bert")
-        
-#         self.conv1 = nn.Conv1d(41, 16, kernel_size=3, stride=1, padding='same')
-#         self.conv2 = nn.Conv1d(16, 8, kernel_size=3, stride=1, padding='same')
-        
-#         self.n_layers = n_layers
-#         # self.embedding = nn.Embedding(vocab_size, embedding_dim)        
-#         self.lstm1 = nn.LSTM(embedding_dim, 64, num_layers=n_layers, bidirectional=True, batch_first=True)
-#         self.lstm2 = nn.LSTM(64*2, 32, num_layers=n_layers, bidirectional=True, batch_first=True)
-#         # self.lstm3 = nn.LSTM(2*16, 8, num_layers=n_layers, bidirectional=True, batch_first=True)
-#         # self.lstm4 = nn.LSTM(2*32, 16, num_layers=n_layers, bidirectional=True, batch_first=True)
-
-        
-
-
-#         self.fc1 =  nn.Linear(1024+32*2, 16)
-#         self.fc2 = nn.Linear(16, 5)
-#         self.fc = nn.Linear(5, 1)
-        
-#         self.Rrelu = nn.ReLU()
-#         self.LRrelu = nn.LeakyReLU()
-
-#         self.dropout = nn.Dropout(0.2)
-#         self.dropout1 = nn.Dropout(0.2)
-#         self.dropout2 = nn.Dropout(0.2)
-
-
-#         self.w_omega = nn.Parameter(torch.Tensor(hidden_dim * 2+1024, hidden_dim * 2+1024))
-#         self.u_omega = nn.Parameter(torch.Tensor(hidden_dim * 2+1024, 1))
-
-#         nn.init.uniform_(self.w_omega, -0.1, 0.1)
-#         nn.init.uniform_(self.u_omega, -0.1, 0.1)
-
-
-#     def attention_net(self, x):       #x:[batch, seq_len, hidden_dim*2]
-
-#         u = torch.tanh(torch.matmul(x, self.w_omega))         #[batch, seq_len, hidden_dim*2]
-#         # print('u',u.shape)
-#         att = torch.matmul(u, self.u_omega)                   #[batch, seq_len, 1]
-#         att_score = F.softmax(att, dim=1)
-
-#         scored_x = x * att_score                              #[batch, seq_len, hidden_dim*2]
-
-#         context = torch.sum(scored_x, dim=1)                  #[batch, hidden_dim*2]
-#         return context
-
-
-
-
-#     def forward(self, input_ids, token_type_ids, attention_mask, x):
-       
-
-#         pooled_output, _ = self.bert(
-#             input_ids=input_ids,
-#             token_type_ids=token_type_ids,
-#             attention_mask=attention_mask,
-#             return_dict = False
-#         ) #ProBert
-
-#         
-#         conv1_output = self.conv1(pooled_output)    
-# #         conv2_output = self.conv2(conv1_output)
-# #         print('conv_output shape',conv_output.shape)
-#         pooled_output = torch.mean(conv1_output, axis=1)  
-# #         print('pooled_output shape',pooled_output.shape)  
-
-
-
-
-#         output, (final_hidden_state, final_cell_state) = self.lstm1(x.float())  
-#         # print('output  lstm1  shape',output.shape) 
-#         output = self.dropout1(output)
-
-#         lstmout2, (_, _)  =  self.lstm2(output) 
-
-#         bi_lstm_output = self.dropout2(lstmout2)
-# #         print('bi_lstm_output1 shape',bi_lstm_output.shape) 
-#         bi_lstm_output = torch.mean(bi_lstm_output, axis=1)  
-# #         print('bi_lstm_output shape',bi_lstm_output.shape)  
-
-#         fusion_output = torch.cat([pooled_output, bi_lstm_output], axis=1)  
-#         fusion_output = fusion_output.unsqueeze(1)
-
-# #         print('fusion_output shape',fusion_output.shape) 
-
-#         # lstmout2, (_, _)  =  self.lstm2(output)
-#         # output = self.dropout(lstmout2)
-
-#         # # print('output shape',output.shape) 
-
-#         # lstmout3, (_, _)  =  self.lstm3(output)
-#         # output = self.dropout(lstmout3)
-        
-#         attn_output = self.attention_net(fusion_output)
-# #         print("attn_output",attn_output.shape) 
-#         out1 = self.fc1(fusion_output)
-#         out2 = self.fc2(out1)
-#         logit = self.fc(out2)
-#         # print('logit',logit.shape)
-#         return nn.Sigmoid()(logit)
-
-
-    
 class BiLSTM_Attention(nn.Module):
 
     def __init__(self,  embedding_dim=83,hidden_dim=32,  n_layers=1): 
-
         super(BiLSTM_Attention, self).__init__()
-
-        ###proBert预训练模型
-        self.bert = BertModel.from_pretrained("Rostlab/prot_bert")
-        
-        self.conv1 = nn.Conv1d(1024, 512, kernel_size=3, stride=1, padding='same')
+        self.bert = BertModel.from_pretrained("Rostlab/prot_bert")      
+        self.conv1 = nn.Conv1d(41, 16, kernel_size=3, stride=1, padding='same')
 #         self.conv2 = nn.Conv1d(16, 8, kernel_size=3, stride=1, padding='same')
-        
         self.n_layers = n_layers
-        # self.embedding = nn.Embedding(vocab_size, embedding_dim)        #单词数，嵌入向量维度
+        # self.embedding = nn.Embedding(vocab_size, embedding_dim)        
         self.lstm1 = nn.LSTM(embedding_dim, 64, num_layers=n_layers, bidirectional=True, batch_first=True)
         self.lstm2 = nn.LSTM(64*2, 32, num_layers=n_layers, bidirectional=True, batch_first=True)
         # self.lstm3 = nn.LSTM(2*16, 8, num_layers=n_layers, bidirectional=True, batch_first=True)
         # self.lstm4 = nn.LSTM(2*32, 16, num_layers=n_layers, bidirectional=True, batch_first=True)
-
- 
-        self.fc1 =  nn.Linear(512+32*2, 16)
+        self.fc1 =  nn.Linear(1024+32*2, 16)
         self.fc2 = nn.Linear(16, 5)
-        self.fc = nn.Linear(5, 1)
-        
+        self.fc = nn.Linear(5, 1)     
         self.Rrelu = nn.ReLU()
         self.LRrelu = nn.LeakyReLU()
-
         self.dropout = nn.Dropout(0.2)
         self.dropout1 = nn.Dropout(0.2)
         self.dropout2 = nn.Dropout(0.2)
-
-
-        # 初始时间步和最终时间步的隐藏状态作为全连接层输入
-
-        self.w_omega = nn.Parameter(torch.Tensor(hidden_dim * 2+512, hidden_dim * 2+512))
-        self.u_omega = nn.Parameter(torch.Tensor(hidden_dim * 2+512, 1))
-
+        self.w_omega = nn.Parameter(torch.Tensor(hidden_dim * 2+1024, hidden_dim * 2+1024))
+        self.u_omega = nn.Parameter(torch.Tensor(hidden_dim * 2+1024, 1))
         nn.init.uniform_(self.w_omega, -0.1, 0.1)
         nn.init.uniform_(self.u_omega, -0.1, 0.1)
 
 
-    def attention_net(self, x):       #x:[batch, seq_len, hidden_dim*2]
-
-        u = torch.tanh(torch.matmul(x, self.w_omega))         #[batch, seq_len, hidden_dim*2]
-        # print('u',u.shape)
-        att = torch.matmul(u, self.u_omega)                   #[batch, seq_len, 1]
+    def attention_net(self, x):      
+        u = torch.tanh(torch.matmul(x, self.w_omega))         
+        att = torch.matmul(u, self.u_omega)                  
         att_score = F.softmax(att, dim=1)
-
-        scored_x = x * att_score                              #[batch, seq_len, hidden_dim*2]
-
-        context = torch.sum(scored_x, dim=1)                  #[batch, hidden_dim*2]
+        scored_x = x * att_score                              
+        context = torch.sum(scored_x, dim=1)                 
         return context
 
 
@@ -345,38 +217,26 @@ class BiLSTM_Attention(nn.Module):
             token_type_ids=token_type_ids,
             attention_mask=attention_mask,
             return_dict = False
-        ) #ProBert
+        )
 
-        #pooled_output [12,41,1024]
-        imput = pooled_output.permute(0,2,1)  #维度转换 [12,1024,41]
-#         print("imput shape",imput.shape)
-        conv1_output = self.conv1(imput)    #输入是[12,1024,41]   输出是[12,512,41]
+    
+        conv1_output = self.conv1(pooled_output)    
 #         conv2_output = self.conv2(conv1_output)
 #         print('conv_output shape',conv_output.shape)
-        pooled_output = torch.mean(conv1_output, axis=2)   # average pooling
-#         print('pooled_output shape',pooled_output.shape)  #[12, 512]
+        pooled_output = torch.mean(conv1_output, axis=1)  
 
 
 
-
-        # output: [seq_len, batch, hidden_dim*2]     hidden/cell: [n_layers*2, batch, hidden_dim]
-        # out_x = self.embedding(x.float())
-        # print("out_x shape",out_x.shape)
-        output, (final_hidden_state, final_cell_state) = self.lstm1(x.float())   #输入为[12,31,83]   输出[12,31,64*2]
-        # print('output  lstm1  shape',output.shape) 
+        output, (final_hidden_state, final_cell_state) = self.lstm1(x.float())  
         output = self.dropout1(output)
 
-        lstmout2, (_, _)  =  self.lstm2(output)   #[12,31,32*2]
+        lstmout2, (_, _)  =  self.lstm2(output)   
 
         bi_lstm_output = self.dropout2(lstmout2)
-#         print('bi_lstm_output1 shape',bi_lstm_output.shape) 
-        bi_lstm_output = torch.mean(bi_lstm_output, axis=1)  #[12,32*2]  把中间那一维平均池化了
-#         print('bi_lstm_output shape',bi_lstm_output.shape)  #[12, 64]
-
-        fusion_output = torch.cat([pooled_output, bi_lstm_output], axis=1)   #512+64   [12,576]
+        bi_lstm_output = torch.mean(bi_lstm_output, axis=1) 
+ 
+        fusion_output = torch.cat([pooled_output, bi_lstm_output], axis=1)   
         fusion_output = fusion_output.unsqueeze(1)
-
-#         print('fusion_output shape',fusion_output.shape)  #[12,1,576]
 
         # lstmout2, (_, _)  =  self.lstm2(output)
         # output = self.dropout(lstmout2)
@@ -387,14 +247,12 @@ class BiLSTM_Attention(nn.Module):
         # output = self.dropout(lstmout3)
         
         attn_output = self.attention_net(fusion_output)
-#         print("attn_output",attn_output.shape) #[12,576]
         out1 = self.fc1(fusion_output)
         out2 = self.fc2(out1)
         logit = self.fc(out2)
-        # print('logit',logit.shape)
         return nn.Sigmoid()(logit)
 
-    
+
 
 
 import copy
