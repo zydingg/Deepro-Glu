@@ -21,7 +21,6 @@ from sklearn.preprocessing import LabelBinarizer, LabelEncoder
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import confusion_matrix, auc, roc_curve, roc_auc_score
 from sklearn.model_selection import KFold, RepeatedKFold
-
 warnings.filterwarnings('ignore')
 
 
@@ -33,7 +32,6 @@ def random_seed(seed):
 
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-
 
 random_seed(777)
 
@@ -50,6 +48,8 @@ def tokenize(path):
     trainlabel = data_frame[data_frame.columns[0]]
     proBert_seq = data_frame[data_frame.columns[1]]
     return np.array(traindata), np.array(trainlabel), np.array(proBert_seq)
+
+
 train_X, train_Y, proBer_train_seq = tokenize(train_data_path)
 train_X = train_X.reshape(-1, 31, 83)
 
@@ -133,14 +133,20 @@ def fit(model, train_loader, optimizer, criterion, device):
         input_ids = samples['input_ids'].to(device)
         token_type_ids = samples['token_type_ids'].to(device)
         attention_mask = samples['attention_mask'].to(device)
+
         launch_seq = launch_seq.long().to(device)
         label = torch.tensor(label).float().to(device)
+
         pred = model(input_ids, token_type_ids, attention_mask, launch_seq)
+
         pred = pred.squeeze()
+
         loss = criterion(pred, label)
+
         model.zero_grad()
         loss.backward()
         optimizer.step()
+
         pred_list.extend(pred.squeeze().cpu().detach().numpy())
         label_list.extend(label.squeeze().cpu().detach().numpy())
 
@@ -159,9 +165,12 @@ def validate(model, val_loader, device):
         input_ids = samples['input_ids'].to(device)
         token_type_ids = samples['token_type_ids'].to(device)
         attention_mask = samples['attention_mask'].to(device)
+
         launch_seq = launch_seq.long().to(device)
         label = torch.tensor(label).float().to(device)
+
         pred = model(input_ids, token_type_ids, attention_mask, launch_seq)
+
         pred_list.extend(pred.squeeze().cpu().detach().numpy())
         label_list.extend(label.squeeze().cpu().detach().numpy())
 
@@ -267,7 +276,6 @@ if __name__ == '__main__':
 
     X_train = train_X
     Y_train = train_Y
-
     skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=123)
 
     valid_pred = []
@@ -275,7 +283,9 @@ if __name__ == '__main__':
 
     for index, (train_idx, val_idx) in enumerate(skf.split(X_train, Y_train)):
 
+        
         print('**' * 10, 'the', index + 1, 'fold', 'ing....', '**' * 10)
+
         x_train, x_valid = X_train[train_idx], X_train[val_idx]
         y_train, y_valid = Y_train[train_idx], Y_train[val_idx]
         pro_train, pro_valid = proBer_train_seq[train_idx], proBer_train_seq[val_idx]
@@ -296,12 +306,15 @@ if __name__ == '__main__':
                                   num_workers=4)
 
         model = CNN_BiLSTM_Attention().to(device)
+
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-05)
+
         criterion = nn.BCELoss()
 
         best_val_score = float('-inf')
         last_improve = 0
         best_model = None
+
         for epoch in range(20):
             train_score = fit(model, train_loader, optimizer, criterion, device)
             val_score, _, _ = validate(model, valid_loader, device)
@@ -312,12 +325,9 @@ if __name__ == '__main__':
                 last_improve = epoch
                 improve = '*'
             else:
-
                 improve = ''
 
-            print(
-                f'Epoch: {epoch} Train Score: {train_score}, Valid Score: {val_score}  '
-            )
+            print(f'Epoch: {epoch} Train Score: {train_score}, Valid Score: {val_score}  ')
 
         model = best_model
 
@@ -326,10 +336,11 @@ if __name__ == '__main__':
         train_score, _, _ = validate(model, train_loader, device)
         print("valid")
         valid_score, pred_list, label_list = validate(model, valid_loader, device)
-        valid_pred.append(pred_list)
-        valid_label.append(label_list)
+        valid_pred.extend(pred_list)
+        valid_label.extend(label_list)
 
-    print("******************************************10-fold cross valid**********************************************")
+    print("*****************************************10-fold cross valid**********************************************")
 
-    print("10_cross_valid_score")
+    print("cross_valid_score")
     cross_valid_score = cal_score(valid_pred, valid_label)
+
